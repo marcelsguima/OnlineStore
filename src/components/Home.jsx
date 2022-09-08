@@ -7,6 +7,7 @@ class Home extends React.Component {
     listaProdutos: [],
     search: '',
     searched: false,
+    categoriaSearch: '',
     listaCategorias: [],
   };
 
@@ -20,9 +21,9 @@ class Home extends React.Component {
 
   submitSearch = async () => {
     let { listaProdutos } = this.state;
-    const { search } = this.state;
+    const { search, categoriaSearch } = this.state;
     const functionResult = await
-    api.getProductsFromCategoryAndQuery(undefined, search);
+    api.getProductsFromCategoryAndQuery(categoriaSearch, search);
     listaProdutos = functionResult.results;
     this.setState({ searched: true });
     this.setState({ listaProdutos });
@@ -31,6 +32,18 @@ class Home extends React.Component {
   categorias = async () => {
     const cat = await api.getCategories();
     this.setState({ listaCategorias: cat });
+  };
+
+  categoriaClick = async ({ target }) => {
+    let { listaProdutos } = this.state;
+    this.setState({ categoriaSearch: target.name }, async () => {
+      const { categoriaSearch } = this.state;
+      const functionResult = await
+      api.getProductsFromCategoryAndQuery(categoriaSearch, undefined);
+      listaProdutos = functionResult.results;
+      this.setState({ searched: true,
+        listaProdutos });
+    });
   };
 
   render() {
@@ -61,7 +74,12 @@ class Home extends React.Component {
         <ul>
           {listaCategorias.map((element) => (
             <div key={ element.id }>
-              <button type="button" data-testid="category" name={ element.id }>
+              <button
+                type="button"
+                data-testid="category"
+                name={ element.id }
+                onClick={ this.categoriaClick }
+              >
                 { element.name }
               </button>
             </div>
