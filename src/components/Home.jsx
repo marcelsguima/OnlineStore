@@ -7,6 +7,7 @@ class Home extends React.Component {
     listaProdutos: [],
     search: '',
     searched: false,
+    listaCategorias: [],
   };
 
   handleChange = ({ target }) => {
@@ -22,9 +23,18 @@ class Home extends React.Component {
     this.setState({ searched: true });
     this.setState({ listaProdutos });
   };
+  
+  componentDidMount() {
+    this.categorias();
+  }
+
+  categorias = async () => {
+    const cat = await api.getCategories();
+    this.setState({ listaCategorias: cat });
+  };
 
   render() {
-    const { listaProdutos, search, searched } = this.state;
+    const { listaProdutos, search, searched, listaCategorias } = this.state;
     return (
       <div data-testid="home-initial-message">
         <input
@@ -48,6 +58,15 @@ class Home extends React.Component {
             />))}
         {listaProdutos.length === 0 && searched
         && <p>Nenhum produto foi encontrado</p>}
+        <ul>
+          {listaCategorias.map((element) => (
+            <div key={ element.id }>
+              <button type="button" data-testid="category" name={ element.id }>
+                { element.name }
+              </button>
+            </div>
+          ))}
+        </ul>
       </div>
     );
   }
