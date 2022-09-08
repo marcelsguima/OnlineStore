@@ -10,6 +10,10 @@ class Home extends React.Component {
     listaCategorias: [],
   };
 
+  componentDidMount() {
+    this.categorias();
+  }
+
   handleChange = ({ target }) => {
     this.setState({ search: target.value });
   };
@@ -23,10 +27,6 @@ class Home extends React.Component {
     this.setState({ searched: true });
     this.setState({ listaProdutos });
   };
-  
-  componentDidMount() {
-    this.categorias();
-  }
 
   categorias = async () => {
     const cat = await api.getCategories();
