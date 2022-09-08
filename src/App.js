@@ -4,6 +4,7 @@ import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
 import './App.css';
 import Home from './components/Home';
 import Cart from './components/Cart';
+import ProductPage from './components/ProductPage';
 
 class App extends React.Component {
   render() {
@@ -14,8 +15,9 @@ class App extends React.Component {
             <Link to="/Cart" data-testid="shopping-cart-button">Carrinho de Compras</Link>
           </div>
           <Switch>
+            <Route path="/product/:productId" component={ ProductPage } />
             <Route path="/Cart" component={ Cart } />
-            <Route path="/" component={ Home } />
+            <Route exact path="/" component={ Home } />
           </Switch>
         </BrowserRouter>
       </div>
