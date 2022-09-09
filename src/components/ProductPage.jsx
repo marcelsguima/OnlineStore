@@ -10,6 +10,30 @@ class ProductPage extends React.Component {
     this.setState({ product: await api.getProductById(productId) });
   }
 
+  saveToCart = () => {
+    const { product: { id, title, price, thumbnail } } = this.state;
+    const data = {
+      amount: 1,
+      id,
+      title,
+      price,
+      thumbnail,
+    };
+    if (!localStorage.getItem('Cart')) {
+      localStorage.setItem('Cart', JSON.stringify([data]));
+    } else {
+      const getItem = JSON.parse(localStorage.getItem('Cart'));
+      const foundItem = getItem.findIndex((item) => item.id === data.id);
+      const negative = -1;
+      if (foundItem !== negative) {
+        getItem[foundItem].amount += 1;
+      } else {
+        getItem.push(data);
+      }
+      localStorage.setItem('Cart', JSON.stringify(getItem));
+    }
+  };
+
   render() {
     const { product: { title, price, thumbnail } } = this.state;
     return (
@@ -20,6 +44,13 @@ class ProductPage extends React.Component {
           Preço:
           { price }
         </p>
+        <button
+          type="button"
+          data-testid="product-detail-add-to-cart"
+          onClick={ this.saveToCart }
+        >
+          Adicionar ao Carrinho
+        </button>
       </div>
     );
   }
