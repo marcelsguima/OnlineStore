@@ -26,12 +26,6 @@ class ProductPage extends React.Component {
 }
 
 ProductPage.propTypes = {
-  product: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    price: PropTypes.number.isRequired,
-    thumbnail: PropTypes.string.isRequired,
-  }).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
       productId: PropTypes.string.isRequired,
