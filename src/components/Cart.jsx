@@ -11,12 +11,17 @@ class Cart extends React.Component {
     this.setState({ cart });
   }
 
+  updateForce = async () => {
+    const cart = JSON.parse(localStorage.getItem('Cart'));
+    this.setState({ cart });
+  };
+
   render() {
     const { cart } = this.state;
     return (
       <div>
         <h1>Carrinho de Compras</h1>
-        {cart === null ? (
+        {(cart === null || (typeof cart !== 'undefined' && cart.length === 0)) ? (
           <div data-testid="shopping-cart-empty-message">
             Seu carrinho está vazio
           </div>
@@ -24,6 +29,7 @@ class Cart extends React.Component {
           key={ product.id }
           product={ product }
           amount={ product.amount }
+          update={ this.updateForce }
         />))}
       </div>
     );
