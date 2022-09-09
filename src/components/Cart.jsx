@@ -16,7 +16,7 @@ class Cart extends React.Component {
     return (
       <div>
         <h1>Carrinho de Compras</h1>
-        {cart.length === 0 ? (
+        {cart === null ? (
           <div data-testid="shopping-cart-empty-message">
             Seu carrinho está vazio
           </div>
