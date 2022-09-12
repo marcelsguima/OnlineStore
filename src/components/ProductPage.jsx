@@ -13,10 +13,7 @@ class ProductPage extends React.Component {
   async componentDidMount() { await this.update(); }
 
   update = async () => {
-    const { match: {
-      params: {
-        productId,
-      },
+    const { match: { params: { productId },
     } } = this.props;
     const productEvals = (JSON.parse(localStorage.getItem(productId)) || []);
     this.setState({ productEvals });
