@@ -6,7 +6,7 @@ class CartProduct extends React.Component {
     const { product: { title, price, thumbnail, amount, id } } = this.props;
     const { update } = this.props;
 
-    const increaseQuantity = () => {
+    const increaseQuantity = async () => {
       const { cartUpdateForce } = this.props;
       const data = {
         amount,
@@ -18,8 +18,11 @@ class CartProduct extends React.Component {
       const getItem = JSON.parse(localStorage.getItem('Cart'));
       let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
-      getItem[foundItem].amount += 1;
-      getSize += 1;
+      const maximum = getItem[foundItem].availableQuantity;
+      if (getItem[foundItem].amount !== maximum) {
+        getItem[foundItem].amount += 1;
+        getSize += 1;
+      }
       localStorage.setItem('Cart', JSON.stringify(getItem));
       localStorage.setItem('CartSize', JSON.stringify(getSize));
       cartUpdateForce();
@@ -82,7 +85,6 @@ class CartProduct extends React.Component {
           -
         </button>
         <p data-testid="shopping-cart-product-quantity">
-          x
           { amount }
         </p>
         <button
