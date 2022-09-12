@@ -26,12 +26,15 @@ class Product extends React.Component {
       let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
       const negative = -1;
-      if (foundItem !== negative) {
-        getItem[foundItem].amount += 1;
-      } else {
-        getItem.push(data);
+      const maximum = getItem[foundItem].availableQuantity;
+      if (getItem[foundItem].amount !== maximum) {
+        if (foundItem !== negative) {
+          getItem[foundItem].amount += 1;
+        } else {
+          getItem.push(data);
+        }
+        getSize += 1;
       }
-      getSize += 1;
       localStorage.setItem('Cart', JSON.stringify(getItem));
       localStorage.setItem('CartSize', JSON.stringify(getSize));
     }
