@@ -8,7 +8,8 @@ class Product extends React.Component {
       title,
       price,
       thumbnail,
-      available_quantity: availableQuantity } } = this.props;
+      available_quantity: availableQuantity,
+      shipping: { free_shipping: isFreeShipping } } } = this.props;
     const { cartUpdateForce } = this.props;
     const data = {
       amount: 1,
@@ -17,6 +18,7 @@ class Product extends React.Component {
       price,
       thumbnail,
       availableQuantity,
+      isFreeShipping,
     };
     if (!localStorage.getItem('Cart')) {
       localStorage.setItem('Cart', JSON.stringify([data]));
@@ -25,14 +27,15 @@ class Product extends React.Component {
       const getItem = JSON.parse(localStorage.getItem('Cart'));
       let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
+      const maximum = availableQuantity;
       const negative = -1;
-      const maximum = getItem[foundItem].availableQuantity;
-      if (getItem[foundItem].amount !== maximum) {
-        if (foundItem !== negative) {
+      if (foundItem !== negative) {
+        if (getItem[foundItem].amount < maximum) {
           getItem[foundItem].amount += 1;
-        } else {
-          getItem.push(data);
+          getSize += 1;
         }
+      } else {
+        getItem.push(data);
         getSize += 1;
       }
       localStorage.setItem('Cart', JSON.stringify(getItem));
@@ -42,17 +45,25 @@ class Product extends React.Component {
   };
 
   render() {
-    const { product: { title, price, thumbnail, id } } = this.props;
+    const { product } = this.props;
+    const { product: { title, price, thumbnail, id, available_quantity: availableQuantity,
+      shipping: { free_shipping: isFreeShipping } } } = this.props;
     const link = `/product/${id}`;
+    const available = `Unidades disponíveis: ${availableQuantity}`;
     return (
       <div data-testid="product">
-        <Link data-testid="product-detail-link" to={ link }>
+        <Link
+          data-testid="product-detail-link"
+          to={ { pathname: link, state: { product } } }
+        >
           <img src={ thumbnail } alt={ title } />
           <p>{ title }</p>
           <p>
             Preço:
             { price }
           </p>
+          <p>{available}</p>
+          {isFreeShipping && <p data-testid="free-shipping">Frete Grátis</p>}
         </Link>
         <button
           type="button"
@@ -73,6 +84,9 @@ Product.propTypes = {
     price: PropTypes.number.isRequired,
     thumbnail: PropTypes.string.isRequired,
     available_quantity: PropTypes.number.isRequired,
+    shipping: PropTypes.shape({
+      free_shipping: PropTypes.bool.isRequired,
+    }).isRequired,
   }).isRequired,
   cartUpdateForce: PropTypes.func.isRequired,
 };

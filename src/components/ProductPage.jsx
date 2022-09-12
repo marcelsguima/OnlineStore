@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import * as api from '../services/api';
 
 class ProductPage extends React.Component {
   state = {
-    product: {},
     email: '',
     text: '',
     rating: '',
@@ -12,22 +10,30 @@ class ProductPage extends React.Component {
     error: false,
   };
 
-  async componentDidMount() {
-    const { cartUpdateForce } = this.props;
-    await this.update();
-    cartUpdateForce();
-  }
+  async componentDidMount() { await this.update(); }
 
   update = async () => {
-    const { match: { params: { productId } } } = this.props;
-    this.setState({ product: await api.getProductById(productId) }, () => {
-      const productEvals = (JSON.parse(localStorage.getItem(productId)) || []);
-      this.setState({ productEvals });
-    });
+    const { match: {
+      params: {
+        productId,
+      },
+    } } = this.props;
+    const productEvals = (JSON.parse(localStorage.getItem(productId)) || []);
+    this.setState({ productEvals });
   };
 
   saveToCart = () => {
-    const { product: { id, title, price, thumbnail } } = this.state;
+    const { location: {
+      state: {
+        product: {
+          id,
+          title,
+          price,
+          thumbnail,
+          available_quantity: availableQuantity,
+          shipping: { free_shipping: isFreeShipping } },
+      },
+    } } = this.props;
     const { cartUpdateForce } = this.props;
     const data = {
       amount: 1,
@@ -35,21 +41,25 @@ class ProductPage extends React.Component {
       title,
       price,
       thumbnail,
+      availableQuantity,
+      isFreeShipping,
     };
     if (!localStorage.getItem('Cart')) {
       localStorage.setItem('Cart', JSON.stringify([data]));
+      localStorage.setItem('CartSize', JSON.stringify(1));
     } else {
       const getItem = JSON.parse(localStorage.getItem('Cart'));
       let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
       const negative = -1;
-      const maximum = getItem[foundItem].availableQuantity;
-      if (getItem[foundItem].amount !== maximum) {
-        if (foundItem !== negative) {
+      const maximum = availableQuantity;
+      if (foundItem !== negative) {
+        if (getItem[foundItem].amount < maximum) {
           getItem[foundItem].amount += 1;
-        } else {
-          getItem.push(data);
+          getSize += 1;
         }
+      } else {
+        getItem.push(data);
         getSize += 1;
       }
       localStorage.setItem('Cart', JSON.stringify(getItem));
@@ -58,17 +68,11 @@ class ProductPage extends React.Component {
     cartUpdateForce();
   };
 
-  handleRating = ({ target }) => {
-    this.setState({ rating: target.value });
-  };
+  handleRating = ({ target }) => this.setState({ rating: target.value });
 
-  handleEmail = ({ target }) => {
-    this.setState({ email: target.value });
-  };
+  handleEmail = ({ target }) => this.setState({ email: target.value });
 
-  handleEvaluation = ({ target }) => {
-    this.setState({ text: target.value });
-  };
+  handleEvaluation = ({ target }) => this.setState({ text: target.value });
 
   submit = (event) => {
     event.preventDefault();
@@ -76,11 +80,7 @@ class ProductPage extends React.Component {
     const { match: { params: { productId } } } = this.props;
     const emailCheck = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/gi;
     if (emailCheck.test(email) && rating !== '') {
-      const data = {
-        email,
-        text,
-        rating,
-      };
+      const data = { email, text, rating };
       if (typeof productEvals !== 'undefined' && productEvals.length === 0) {
         localStorage.setItem(productId, JSON.stringify([data]));
       }
@@ -92,15 +92,23 @@ class ProductPage extends React.Component {
           text: '',
         });
       });
-    } else {
-      this.setState({ error: true });
-    }
+    } else { this.setState({ error: true }); }
     this.update();
   };
 
   render() {
-    const { product: { title, price, thumbnail } } = this.state;
+    const { location: {
+      state: {
+        product: {
+          title,
+          price,
+          thumbnail,
+          available_quantity: availableQuantity,
+          shipping: { free_shipping: isFreeShipping } },
+      },
+    } } = this.props;
     const { productEvals, error, email, text } = this.state;
+    const available = `${availableQuantity} disponíveis`;
     return (
       <>
         <div data-testid="product">
@@ -110,6 +118,8 @@ class ProductPage extends React.Component {
             Preço:
             { price }
           </p>
+          <p>{available}</p>
+          {isFreeShipping && <p data-testid="free-shipping">Frete Grátis</p>}
           <button
             type="button"
             data-testid="product-detail-add-to-cart"
@@ -218,6 +228,20 @@ class ProductPage extends React.Component {
 }
 
 ProductPage.propTypes = {
+  location: PropTypes.shape({
+    state: PropTypes.shape({
+      product: PropTypes.shape({
+        id: PropTypes.string,
+        title: PropTypes.string,
+        price: PropTypes.number,
+        thumbnail: PropTypes.string,
+        available_quantity: PropTypes.number,
+        shipping: PropTypes.shape({
+          free_shipping: PropTypes.bool,
+        }).isRequired,
+      }).isRequired,
+    }).isRequired,
+  }).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
       productId: PropTypes.string.isRequired,
