@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import CartProduct from './CartProduct';
 
 class Cart extends React.Component {
@@ -31,6 +32,7 @@ class Cart extends React.Component {
           amount={ product.amount }
           update={ this.updateForce }
         />))}
+        <Link to="/checkout" data-testid="checkout-products">Finalizar Compra</Link>
       </div>
     );
   }
