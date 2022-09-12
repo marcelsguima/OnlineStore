@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import * as api from '../services/api';
 import Product from './Product';
 
@@ -12,7 +13,9 @@ class Home extends React.Component {
   };
 
   componentDidMount() {
+    const { cartUpdateForce } = this.props;
     this.categorias();
+    cartUpdateForce();
   }
 
   handleChange = ({ target }) => {
@@ -48,6 +51,7 @@ class Home extends React.Component {
 
   render() {
     const { listaProdutos, search, searched, listaCategorias } = this.state;
+    const { cartUpdateForce } = this.props;
     return (
       <div data-testid="home-initial-message">
         <input
@@ -68,6 +72,7 @@ class Home extends React.Component {
             <Product
               key={ product.id }
               product={ product }
+              cartUpdateForce={ cartUpdateForce }
             />))}
         {listaProdutos.length === 0 && searched
         && <p>Nenhum produto foi encontrado</p>}
@@ -89,5 +94,9 @@ class Home extends React.Component {
     );
   }
 }
+
+Home.propTypes = {
+  cartUpdateForce: PropTypes.func.isRequired,
+};
 
 export default Home;

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 class Product extends React.Component {
   saveToCart = () => {
     const { product: { id, title, price, thumbnail } } = this.props;
+    const { cartUpdateForce } = this.props;
     const data = {
       amount: 1,
       id,
@@ -14,8 +15,10 @@ class Product extends React.Component {
     };
     if (!localStorage.getItem('Cart')) {
       localStorage.setItem('Cart', JSON.stringify([data]));
+      localStorage.setItem('CartSize', JSON.stringify(1));
     } else {
       const getItem = JSON.parse(localStorage.getItem('Cart'));
+      let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
       const negative = -1;
       if (foundItem !== negative) {
@@ -23,8 +26,11 @@ class Product extends React.Component {
       } else {
         getItem.push(data);
       }
+      getSize += 1;
       localStorage.setItem('Cart', JSON.stringify(getItem));
+      localStorage.setItem('CartSize', JSON.stringify(getSize));
     }
+    cartUpdateForce();
   };
 
   render() {
@@ -59,6 +65,7 @@ Product.propTypes = {
     price: PropTypes.number.isRequired,
     thumbnail: PropTypes.string.isRequired,
   }).isRequired,
+  cartUpdateForce: PropTypes.func.isRequired,
 };
 
 export default Product;

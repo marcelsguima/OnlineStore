@@ -7,6 +7,7 @@ class CartProduct extends React.Component {
     const { update } = this.props;
 
     const increaseQuantity = () => {
+      const { cartUpdateForce } = this.props;
       const data = {
         amount,
         id,
@@ -15,12 +16,17 @@ class CartProduct extends React.Component {
         thumbnail,
       };
       const getItem = JSON.parse(localStorage.getItem('Cart'));
+      let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
       getItem[foundItem].amount += 1;
+      getSize += 1;
       localStorage.setItem('Cart', JSON.stringify(getItem));
+      localStorage.setItem('CartSize', JSON.stringify(getSize));
+      cartUpdateForce();
     };
 
     const decreaseQuantity = () => {
+      const { cartUpdateForce } = this.props;
       const data = {
         amount,
         id,
@@ -29,15 +35,20 @@ class CartProduct extends React.Component {
         thumbnail,
       };
       const getItem = JSON.parse(localStorage.getItem('Cart'));
+      let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
       const minimum = 1;
       if (getItem[foundItem].amount !== minimum) {
         getItem[foundItem].amount -= 1;
+        getSize -= 1;
       }
       localStorage.setItem('Cart', JSON.stringify(getItem));
+      localStorage.setItem('CartSize', JSON.stringify(getSize));
+      cartUpdateForce();
     };
 
     const removeProduct = () => {
+      const { cartUpdateForce } = this.props;
       const data = {
         amount,
         id,
@@ -46,9 +57,13 @@ class CartProduct extends React.Component {
         thumbnail,
       };
       const getItem = JSON.parse(localStorage.getItem('Cart'));
+      let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
+      getSize -= getItem[foundItem].amount;
       getItem.splice(foundItem, 1);
       localStorage.setItem('Cart', JSON.stringify(getItem));
+      localStorage.setItem('CartSize', JSON.stringify(getSize));
+      cartUpdateForce();
     };
 
     return (
@@ -98,6 +113,7 @@ CartProduct.propTypes = {
     amount: PropTypes.number.isRequired,
   }).isRequired,
   update: PropTypes.func.isRequired,
+  cartUpdateForce: PropTypes.func.isRequired,
 };
 
 export default CartProduct;

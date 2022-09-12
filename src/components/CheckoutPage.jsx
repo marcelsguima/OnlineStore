@@ -15,9 +15,11 @@ class CheckoutPage extends React.Component {
     error: false,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
+    const { cartUpdateForce } = this.props;
     const cart = JSON.parse(localStorage.getItem('Cart'));
     this.setState({ cart });
+    cartUpdateForce();
   }
 
   handleName = ({ target }) => {
@@ -51,7 +53,7 @@ class CheckoutPage extends React.Component {
   checkout = (event) => {
     event.preventDefault();
     const { cart, fullname, email, cpf, phone, cep, address, method } = this.state;
-    const { history } = this.props;
+    const { history, cartUpdateForce } = this.props;
     const emailCheck = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/gi;
     if (emailCheck.test(email)
     && fullname !== ''
@@ -63,6 +65,7 @@ class CheckoutPage extends React.Component {
     && (cart !== null || !(typeof cart !== 'undefined' && cart.length === 0))) {
       this.setState({ error: false }, () => {
         localStorage.setItem('Cart', JSON.stringify([]));
+        cartUpdateForce();
         history.push('/');
       });
     } else {
@@ -195,6 +198,7 @@ CheckoutPage.propTypes = {
     replace: PropTypes.func.isRequired,
     go: PropTypes.func.isRequired,
   }).isRequired,
+  cartUpdateForce: PropTypes.func.isRequired,
 };
 
 export default CheckoutPage;

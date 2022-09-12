@@ -13,7 +13,9 @@ class ProductPage extends React.Component {
   };
 
   async componentDidMount() {
+    const { cartUpdateForce } = this.props;
     await this.update();
+    cartUpdateForce();
   }
 
   update = async () => {
@@ -26,6 +28,7 @@ class ProductPage extends React.Component {
 
   saveToCart = () => {
     const { product: { id, title, price, thumbnail } } = this.state;
+    const { cartUpdateForce } = this.props;
     const data = {
       amount: 1,
       id,
@@ -37,6 +40,7 @@ class ProductPage extends React.Component {
       localStorage.setItem('Cart', JSON.stringify([data]));
     } else {
       const getItem = JSON.parse(localStorage.getItem('Cart'));
+      let getSize = JSON.parse(localStorage.getItem('CartSize'));
       const foundItem = getItem.findIndex((item) => item.id === data.id);
       const negative = -1;
       if (foundItem !== negative) {
@@ -44,8 +48,11 @@ class ProductPage extends React.Component {
       } else {
         getItem.push(data);
       }
+      getSize += 1;
       localStorage.setItem('Cart', JSON.stringify(getItem));
+      localStorage.setItem('CartSize', JSON.stringify(getSize));
     }
+    cartUpdateForce();
   };
 
   handleRating = ({ target }) => {
@@ -213,6 +220,7 @@ ProductPage.propTypes = {
       productId: PropTypes.string.isRequired,
     }),
   }).isRequired,
+  cartUpdateForce: PropTypes.func.isRequired,
 };
 
 export default ProductPage;
